@@ -1,0 +1,60 @@
+version: "3"
+services:
+  carsservice:
+    build: lab2/carsservice
+    container_name: carsservice
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
+    ports:
+      - "8070:8070"
+
+  paymentservice:
+    build: lab2/paymentservice
+    container_name: paymentservice
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
+    ports:
+      - "8050:8050"
+
+  rentalservice:
+    build: lab2/rentalservice
+    container_name: rentalservice
+    environment:
+      DATA_BASE_PORT: "5432"
+      DATA_BASE_NAME: "postgres"
+      DATA_BASE_USER: "postgres"
+      DATA_BASE_PASS: "8Rvbs9i9obYzU5cv"
+      DATA_BASE_HOST: "db.lwyekailhpupnhywwptq.supabase.co"
+    ports:
+      - "8060:8060"
+
+  gatewayservice:
+    build: lab2/gatewayservice
+    container_name: gatewayservice
+    environment:
+      CARS_SERVICE_HOST: "carsservice"
+      CARS_SERVICE_PORT: "8070"
+      PAYMENT_SERVICE_HOST: "paymentservice"
+      PAYMENT_SERVICE_PORT: "8050"
+      RENTAL_SERVICE_HOST: "rentalservice"
+      RENTAL_SERVICE_PORT: "8060"
+      QUEUE_SERVICE_HOST: "queueservice"
+      QUEUE_SERVICE_PORT: "8040"
+
+    ports:
+      - "8080:8080"
+  queueservice:
+    build: lab2/queueservice
+    container_name: queueservice
+    ports:
+      - "8040:8040"
+volumes:
+  db-data:
