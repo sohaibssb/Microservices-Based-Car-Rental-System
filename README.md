@@ -1,71 +1,40 @@
-# Лабораторная работа #2
+# Microservices-Based Car Rental System
 
-![GitHub Classroom Workflow](../../workflows/GitHub%20Classroom%20Workflow/badge.svg?branch=master)
+Programmed by Sohaibssb for "Distributed information processing systems" Course-Master degree at Bauman University.
 
-## Microservices
+This repository houses a car rental system project built with a microservices architecture, employing modern tools and frameworks to achieve modularity, scalability, and efficient communication between services.
 
-### Формулировка
+Technologies Used in the Car Rental System Project:
 
-В рамках второй лабораторной работы _по вариантам_ требуется реализовать систему, состоящую из нескольких
-взаимодействующих друг с другом сервисов.
+Python & Flask: Backend services implemented using Python and the Flask web framework.
+React & CSS: Frontend built with React for dynamic UI, styled with CSS.
+Kafka: Event streaming used for real-time data processing between services.
+OpenID Connect: Ensures secure authentication and authorization of users.
+Docker & Kubernetes: Services isolated in Docker containers and managed with Kubernetes.
+GitHub Actions: CI/CD pipeline for automated testing and deployment.
 
-### Требования
+Features:
 
-1. Каждый сервис имеет свое собственное хранилище, если оно ему нужно. Для учебных целей можно использовать один
-   instance базы данных, но каждый сервис работает _только_ со своей логической базой. Запросы между базами _запрещены_.
-2. Для межсервисного взаимодействия использовать HTTP (придерживаться RESTful). Допускается использовать и другие
-   протоколы, например grpc, но это требуется согласовать с преподавателем.
-3. Выделить **Gateway Service** как единую точку входа и межсервисной коммуникации. Горизонтальные запросы между
-   сервисами делать _нельзя_.
-4. На каждом сервисе сделать специальный endpoint `GET /manage/health`, отдающий 200 ОК, он будет использоваться для
-   проверки доступности сервиса (в [Github Actions](.github/workflows/classroom.yml) в скрипте проверки готовности всех
-   сервисов [wait-script.sh](scripts/wait-script.sh).
-   ```shell
-   "$path"/wait-for.sh -t 120 "http://localhost:$port/manage/health" -- echo "Host localhost:$port is active"
-   ```
-6. Код хранить на Github, для сборки использовать Github Actions.
-7. Gateway Service должен запускаться на порту 8080, остальные сервисы запускать на портах 8050, 8060, 8070.
-8. Каждый сервис должен быть завернут в docker.
-9. В [docker-compose.yml](docker-compose.yml) прописать сборку и запуск docker контейнеров.
-10. В [classroom.yml](.github/workflows/classroom.yml) дописать шаги на сборку и прогон unit-тестов.
-11. Для автоматических прогонов тестов в файле [autograding.json](.github/classroom/autograding.json)
-    и [classroom.yml](.github/workflows/classroom.yml) заменить `<variant>` на ваш вариант.
+1- Microservices Architecture:
+The system comprises various services, each handling a specific domain: Car, Rental, Payment, Gateway, Identity Provider, and Statistics.
+Each service has its own storage and handles all requests via HTTP RESTful APIs.
 
-### Пояснения
+2- Gateway Service:
+Serves as the central entry point, routing incoming user requests to the relevant services.
+Aggregates data from multiple microservices to deliver a unified response.
 
-1. Для разработки можно использовать Postgres в docker, для этого нужно запустить docker compose up -d, поднимется
-   контейнер с Postgres 13, и будут созданы соответствующие вашему варианту (описанные в
-   файлах [schema-$VARIANT](postgres/scripts)) базы данных и пользователь `program`:`test`.
-2. Для создания базы нужно прописать в [20-create-schemas.sh](postgres/20-create-databases.sh) свой вариант задания в
-3. Docker Compose позволяет выполнять сборку образа, для этого нужно прописать
-   блок [`build`](https://docs.docker.com/compose/compose-file/build/).
-4. Горизонтальную коммуникацию между сервисами делать нельзя.
-5. Интеграционные тесты можно проверить локально, для этого нужно импортировать в Postman
-   коллекцию `<variant>/postman/collection.json`) и `<variant>/postman/environment.json`.
+3- Key Services & Components:
+- Car Service: Manages vehicle information and inventory.
+- Rental Service: Handles booking, customer information, and rental contracts.
+- Payment Service: Processes payments securely, integrating with external payment gateways.
+- Identity Provider Service: Provides authentication and authorization, using OpenID Connect.
+- Statistics Service: Gathers data on transactions and user activity, and sends it to Kafka for analysis.
+  
+4- Deployment & Infrastructure:
+Utilizes Docker containers for service isolation and scalability.
+Deployed with Docker Compose to simplify the setup and testing.
+Github Actions for continuous integration with health check endpoints and automated unit testing.
 
-![Services](images/services.png)
-
-Предположим, у нас сервисы `UserService`, `OrderService`, `WarehouseService` и `Gateway`:
-
-* На `Gateway` от пользователя `Alex` приходит запрос `Купить товар с productName: 'Lego Technic 42129`.
-* `Gateway` -> `UserService` проверяем что пользователь существует и получаем `userUid` пользователя по `login: Alex`.
-* `Gateway` -> `WarehouseService` получаем `itemUid` товара по `productName` и резервируем его для заказа.
-* `Gateway` -> `OrderService` с `userUid` и `itemUid` и создаем заказ с `orderUid`.
-* `Gateway` -> `WarehouseService` с `orderUid` и переводим товар `itemUid` из статуса `Зарезервировано` в
-  статус `Заказан` и прописываем ссылку на `orderUid`.
-
-### Прием задания
-
-1. При получении задания у вас создается fork этого репозитория для вашего пользователя.
-2. После того как все тесты успешно завершатся, в Github Classroom на Dashboard будет отмечено успешное выполнение
-   тестов.
-
-### Варианты заданий
-
-Варианты заданий берутся исходя из формулы:
-(номер в [списке группы](https://docs.google.com/spreadsheets/d/1BT5iLgERiWUPPn4gtOQk4KfHjVOTQbUS7ragAJrl6-Q)-1) % 4)+1.
-
-1. [Flight Booking System](v1/README.md)
-1. [Hotels Booking System](v2/README.md)
-1. [Car Rental System](v3/README.md)
-1. [Library System](v4/README.md)
+5- Frontend:
+A React-based user interface provides seamless interaction with the backend services.
+Styled with modern CSS to ensure a consistent user experience.
